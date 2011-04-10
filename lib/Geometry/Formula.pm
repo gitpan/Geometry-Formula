@@ -861,6 +861,8 @@ are properly constructed.
 
 =head1 DIAGNOSTICS 
 
+N/A at the current point in time
+
 =head1 CONFIGURATION AND ENVIRONMENT
 
 This package has only been tested in a 64bit Unix (OSX) environment however

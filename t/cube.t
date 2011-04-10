@@ -4,7 +4,11 @@ use strict;
 use warnings;
 use Geometry::Formula;
 use Test::More tests => 7;
-use Test::Exception;
+
+BEGIN {
+    eval "use Test::Exception";
+    plan skip_all => "Test::Exception needed" if $@;
+}
 
 my $test = Geometry::Formula->new;
 

@@ -5,7 +5,7 @@ use warnings;
 use Carp qw(croak);
 my $PI = 3.1415926;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 sub new {
     my $class = shift;
@@ -16,20 +16,20 @@ sub new {
 
 sub annulus {
     my ( $self, %param, $x ) = @_;
-    param_check( 'annulus', %param );
+    _param_check( 'annulus', %param );
 
     $x = $PI *
-      ( squared( $param{'outer_radius'} ) - squared( $param{'inner_radius'} ) );
+      ( $self->_squared( $param{'outer_radius'} ) - $self->_squared( $param{'inner_radius'} ) );
 
     return $x;
 }
 
 sub circle {
     my ( $self, %param, $x ) = @_;
-    param_check( 'circle', %param );
+    _param_check( 'circle', %param );
 
     if ( $param{'formula'} eq 'area' ) {
-        $x = $PI * squared( $param{'radius'} );
+        $x = $PI * $self->_squared( $param{'radius'} );
     }
     elsif ( $param{'formula'} eq 'circumference' ) {
         $x = ( 2 * $PI ) * $param{'radius'};
@@ -43,7 +43,7 @@ sub circle {
 
 sub cone {
     my ( $self, %param, $x ) = @_;
-    param_check( 'cone', %param );
+    _param_check( 'cone', %param );
 
     $x = ( 1 / 3 ) * ( $param{'base'} * $param{'height'} );
 
@@ -52,13 +52,13 @@ sub cone {
 
 sub cube {
     my ( $self, %param, $x ) = @_;
-    param_check( 'cube', %param );
+    _param_check( 'cube', %param );
 
     if ( $param{'formula'} eq 'surface_area' ) {
         $x = 6 * ( $param{'a'} * 2 );
     }
     else {
-        $x = cubed( $param{'a'} );
+        $x = $self->_cubed( $param{'a'} );
     }
 
     return $x;
@@ -66,14 +66,14 @@ sub cube {
 
 sub ellipse {
     my ( $self, %param, $x ) = @_;
-    param_check( 'ellipse', %param );
+    _param_check( 'ellipse', %param );
 
     if ( $param{'formula'} eq 'area' ) {
         $x = $PI * ( $param{'a'} * $param{'b'} );
     }
     else {
         $x = 2 * $PI *
-          sqrt( ( squared( $param{'a'} ) + squared( $param{'b'} ) ) / 2 );
+          sqrt( ( $self->_squared( $param{'a'} ) + $self->_squared( $param{'b'} ) ) / 2 );
     }
 
     return $x;
@@ -81,7 +81,7 @@ sub ellipse {
 
 sub ellipsoid {
     my ( $self, %param, $x ) = @_;
-    param_check( 'ellipsoid', %param );
+    _param_check( 'ellipsoid', %param );
 
     $x = ( 4 / 3 ) * $PI * $param{'a'} * $param{'b'} * $param{'c'};
 
@@ -90,28 +90,28 @@ sub ellipsoid {
 
 sub equilateral_triangle {
     my ( $self, %param, $x ) = @_;
-    param_check( 'equilateral_triangle', %param );
+    _param_check( 'equilateral_triangle', %param );
 
-    $x = squared( $param{'side'} ) * ( sqrt(3) / 4 );
+    $x = $self->_squared( $param{'side'} ) * ( sqrt(3) / 4 );
 
     return $x;
 }
 
 sub frustum_of_right_circular_cone {
     my ( $self, %param, $x ) = @_;
-    param_check( 'frustum_of_right_circular_cone', %param );
+    _param_check( 'frustum_of_right_circular_cone', %param );
 
     if ( $param{'formula'} eq 'lateral_surface_area' ) {
         $x =
           $PI *
           ( $param{'large_radius'} + $param{'small_radius'} ) *
-          sqrt( squared( $param{'large_radius'} - $param{'small_radius'} ) +
-              squared( $param{'slant_height'} ) );
+          sqrt( $self->_squared( $param{'large_radius'} - $param{'small_radius'} ) +
+              $self->_squared( $param{'slant_height'} ) );
     }
     elsif ( $param{'formula'} eq 'total_surface_area' ) {
         my $slant_height =
-          sqrt( squared( $param{'large_radius'} - $param{'small_radius'} ) +
-              squared( $param{'height'} ) );
+          sqrt( $self->_squared( $param{'large_radius'} - $param{'small_radius'} ) +
+              $self->_squared( $param{'height'} ) );
 
         $x =
           $PI *
@@ -124,9 +124,9 @@ sub frustum_of_right_circular_cone {
     else {
         $x = (
             $PI * (
-                squared( $param{'small_radius'} ) +
+                $self->_squared( $param{'small_radius'} ) +
                   ( $param{'small_radius'} * $param{'large_radius'} ) +
-                  squared( $param{'large_radius'} )
+                  $self->_squared( $param{'large_radius'} )
               ) * $param{'height'}
         ) / 3;
     }
@@ -136,7 +136,7 @@ sub frustum_of_right_circular_cone {
 
 sub parallelogram {
     my ( $self, %param, $x ) = @_;
-    param_check( 'parallelogram', %param );
+    _param_check( 'parallelogram', %param );
 
     if ( $param{'formula'} eq 'area' ) {
         $x = $param{'base'} * $param{'height'};
@@ -150,7 +150,7 @@ sub parallelogram {
 
 sub rectangle {
     my ( $self, %param, $x ) = @_;
-    param_check( 'rectangle', %param );
+    _param_check( 'rectangle', %param );
 
     if ( $param{'formula'} eq 'area' ) {
         $x = $param{'length'} * $param{'width'};
@@ -164,7 +164,7 @@ sub rectangle {
 
 sub rectangular_solid {
     my ( $self, %param, $x ) = @_;
-    param_check( 'rectangular_solid', %param );
+    _param_check( 'rectangular_solid', %param );
 
     if ( $param{'formula'} eq 'volume' ) {
         $x = $param{'length'} * $param{'width'} * $param{'height'};
@@ -182,7 +182,7 @@ sub rectangular_solid {
 
 sub rhombus {
     my ( $self, %param, $x ) = @_;
-    param_check( 'rhombus', %param );
+    _param_check( 'rhombus', %param );
 
     $x = ( $param{'a'} * $param{'b'} ) / 2;
 
@@ -191,16 +191,16 @@ sub rhombus {
 
 sub right_circular_cone {
     my ( $self, %param, $x ) = @_;
-    param_check( 'right_circular_cone', %param );
+    _param_check( 'right_circular_cone', %param );
 
     if ( $param{'formula'} eq 'lateral_surface_area' ) {
         $x =
           $PI *
           $param{'radius'} *
-          ( sqrt( squared( $param{'radius'} ) + squared( $param{'height'} ) ) );
+          ( sqrt( $self->_squared( $param{'radius'} ) + $self->_squared( $param{'height'} ) ) );
     }
     else {
-        $x = ( 1 / 3 ) * $PI * squared( $param{'radius'} ) * $param{'height'};
+        $x = ( 1 / 3 ) * $PI * $self->_squared( $param{'radius'} ) * $param{'height'};
     }
 
     return $x;
@@ -208,7 +208,7 @@ sub right_circular_cone {
 
 sub right_circular_cylinder {
     my ( $self, %param, $x ) = @_;
-    param_check( 'right_circular_cylinder', %param );
+    _param_check( 'right_circular_cylinder', %param );
 
     if ( $param{'formula'} eq 'lateral_surface_area' ) {
         $x = 2 * $PI * $param{'radius'} * $param{'height'};
@@ -218,7 +218,7 @@ sub right_circular_cylinder {
           2 * $PI * $param{'radius'} * ( $param{'radius'} + $param{'height'} );
     }
     else {
-        $x = $PI * ( squared( $param{'radius'} ) * $param{'height'} );
+        $x = $PI * ( $self->_squared( $param{'radius'} ) * $param{'height'} );
     }
 
     return $x;
@@ -226,22 +226,22 @@ sub right_circular_cylinder {
 
 sub sector_of_circle {
     my ( $self, %param, $x ) = @_;
-    param_check( 'sector_of_circle', %param );
+    _param_check( 'sector_of_circle', %param );
 
-    $x = ( $param{'theta'} / 360 ) * $PI * squared( $param{'radius'} );
+    $x = ( $param{'theta'} / 360 ) * $PI * $self->_squared( $param{'radius'} );
 
     return $x;
 }
 
 sub sphere {
     my ( $self, %param, $x ) = @_;
-    param_check( 'sphere', %param );
+    _param_check( 'sphere', %param );
 
     if ( $param{'formula'} eq 'surface_area' ) {
-        $x = 4 * $PI * squared( $param{'radius'} );
+        $x = 4 * $PI * $self->_squared( $param{'radius'} );
     }
     else {
-        $x = ( 4 / 3 ) * $PI * cubed( $param{'radius'} );
+        $x = ( 4 / 3 ) * $PI * $self->_cubed( $param{'radius'} );
     }
 
     return $x;
@@ -249,10 +249,10 @@ sub sphere {
 
 sub square {
     my ( $self, %param, $x ) = @_;
-    param_check( 'square', %param );
+    _param_check( 'square', %param );
 
     if ( $param{'formula'} eq 'area' ) {
-        $x = squared( $param{'side'} );
+        $x = $self->_squared( $param{'side'} );
     }
     else {
         $x = $param{'side'} * 4;
@@ -263,13 +263,13 @@ sub square {
 
 sub torus {
     my ( $self, %param, $x ) = @_;
-    param_check( 'torus', %param );
+    _param_check( 'torus', %param );
 
     if ( $param{'formula'} eq 'surface_area' ) {
-        $x = 4 * squared($PI) * $param{'a'} * $param{'b'};
+        $x = 4 * $self->_squared($PI) * $param{'a'} * $param{'b'};
     }
     else {
-        $x = 2 * squared($PI) * squared( $param{'a'} ) * $param{'b'};
+        $x = 2 * $self->_squared($PI) * $self->_squared( $param{'a'} ) * $param{'b'};
     }
 
     return $x;
@@ -277,7 +277,7 @@ sub torus {
 
 sub trapezoid {
     my ( $self, %param, $x ) = @_;
-    param_check( 'trapezoid', %param );
+    _param_check( 'trapezoid', %param );
 
     if ( $param{'formula'} eq 'area' ) {
         $x = ( ( $param{'a'} + $param{'b'} ) / 2 ) * $param{'height'};
@@ -291,7 +291,7 @@ sub trapezoid {
 
 sub triangle {
     my ( $self, %param, $x ) = @_;
-    param_check( 'triangle', %param );
+    _param_check( 'triangle', %param );
 
     if ( $param{'formula'} eq 'area' ) {
         $x = .5 * $param{'base'} * $param{'height'};
@@ -303,23 +303,19 @@ sub triangle {
     return $x;
 }
 
-sub squared {
-    my $self = shift;
+sub _squared {
+    my ( $self, $num ) = @_;
 
-    my $squared = $self * $self;
-
-    return $squared;
+    return $num ** 2;
 }
 
-sub cubed {
-    my $self = shift;
+sub _cubed {
+    my ( $self, $num ) = @_;
 
-    my $cubed = $self * $self * $self;
-
-    return $cubed;
+    return $num ** 3;
 }
 
-sub param_check {
+sub _param_check {
     my ( $method, %param ) = @_;
 
     my %valid_params = (
@@ -844,15 +840,15 @@ methods are provided for readability and parameter validation.
 
 =over
 
-=item C<< squared( int ) >>
+=item C<< $self->_squared( int ) >>
 
-numeric values passed to this function get squared and returned. 
+numeric values passed to this function get $self->_squared and returned. 
 
-=item C<< cubed( int ) >>
+=item C<<$self->_cubed( int ) >>
 
-numeric values passed to this fucntion get cubed and returned
+numeric values passed to this fucntion get$self->_cubed and returned
 
-=item C<< param_check( $name_of_method, %param ) >> 
+=item C<< _param_check( $name_of_method, %param ) >> 
 
 this method validates the parameters being passed into our formula methods
 are properly constructed. 
